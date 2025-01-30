@@ -11,10 +11,17 @@
       placeholder="Paste your Base64 string here..."
     ></textarea>
     <button id="convertBtn">Convert to PDF</button>
-    <!-- Progress Bar -->
-    <div id="progressContainer" class="progress-container">
-      <div id="progressBar" class="progress-bar"></div>
+
+    <!-- Modal Overlay -->
+    <div id="modalOverlay" class="modal-overlay">
+      <div class="modal-content">
+        <div id="progressContainer" class="progress-container">
+          <div id="progressBar" class="progress-bar"></div>
+        </div>
+        <p id="progressText">Converting... 0%</p>
+      </div>
     </div>
+
     <script src="popup.js"></script>
   </body>
 </html>
