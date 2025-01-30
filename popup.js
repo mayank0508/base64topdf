@@ -6,6 +6,26 @@ document.getElementById('convertBtn').addEventListener('click', () => {
     return;
   }
 
+  // Show the progress bar
+  const progressContainer = document.getElementById('progressContainer');
+  const progressBar = document.getElementById('progressBar');
+  progressContainer.style.display = 'block';
+  progressBar.style.width = '0%';
+
+  // Simulate progress (for demonstration purposes)
+  let progress = 0;
+  const interval = setInterval(() => {
+    progress += 10; // Increase progress by 10%
+    progressBar.style.width = `${progress}%`;
+
+    if (progress >= 100) {
+      clearInterval(interval); // Stop the interval
+      convertBase64ToPDF(base64Input); // Perform the actual conversion
+    }
+  }, 300); // Update progress every 300ms
+});
+
+function convertBase64ToPDF(base64Input) {
   try {
     // Convert Base64 to a Blob
     const byteCharacters = atob(base64Input);
@@ -25,8 +45,12 @@ document.getElementById('convertBtn').addEventListener('click', () => {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+
+    // Reset progress bar
+    const progressContainer = document.getElementById('progressContainer');
+    progressContainer.style.display = 'none';
   } catch (error) {
     alert('Invalid Base64 string or error during conversion.');
     console.error(error);
   }
-});
+}
