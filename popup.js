@@ -6,23 +6,26 @@ document.getElementById('convertBtn').addEventListener('click', () => {
     return;
   }
 
-  // Show the progress bar
-  const progressContainer = document.getElementById('progressContainer');
+  // Show the modal overlay
+  const modalOverlay = document.getElementById('modalOverlay');
   const progressBar = document.getElementById('progressBar');
-  progressContainer.style.display = 'block';
+  const progressText = document.getElementById('progressText');
+  modalOverlay.style.display = 'flex'; // Show the modal
   progressBar.style.width = '0%';
+  progressText.textContent = 'Converting... 0%';
 
-  // Simulate progress (for demonstration purposes)
+  // Simulate progress
   let progress = 0;
   const interval = setInterval(() => {
-    progress += 10; // Increase progress by 10%
+    progress += 10;
     progressBar.style.width = `${progress}%`;
+    progressText.textContent = `Converting... ${progress}%`;
 
     if (progress >= 100) {
-      clearInterval(interval); // Stop the interval
-      convertBase64ToPDF(base64Input); // Perform the actual conversion
+      clearInterval(interval);
+      convertBase64ToPDF(base64Input);
     }
-  }, 300); // Update progress every 300ms
+  }, 300);
 });
 
 function convertBase64ToPDF(base64Input) {
@@ -46,9 +49,11 @@ function convertBase64ToPDF(base64Input) {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 
-    // Reset progress bar
-    const progressContainer = document.getElementById('progressContainer');
-    progressContainer.style.display = 'none';
+    // Hide the modal overlay after a delay
+    setTimeout(() => {
+      const modalOverlay = document.getElementById('modalOverlay');
+      modalOverlay.style.display = 'none';
+    }, 1000); // 1 second delay
   } catch (error) {
     alert('Invalid Base64 string or error during conversion.');
     console.error(error);
