@@ -20,7 +20,7 @@ textarea {
 button {
   width: 100%;
   padding: 10px;
-  background-color: #4CAF50;
+  background-color: #4caf50;
   color: white;
   border: none;
   cursor: pointer;
@@ -64,7 +64,7 @@ button:hover {
 .progress-bar {
   width: 0%;
   height: 20px;
-  background-color: #4CAF50;
+  background-color: #4caf50;
   border-radius: 5px;
   transition: width 0.3s ease;
 }

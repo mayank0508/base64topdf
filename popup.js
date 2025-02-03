@@ -1,61 +1,74 @@
-document.getElementById('convertBtn').addEventListener('click', () => {
-  const base64Input = document.getElementById('base64Input').value.trim();
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Base64 to PDF Print</title>
+</head>
+<body>
+    <!-- Your HTML content -->
+    
+    <script>
+        function convertBase64ToPDF(base64Input) {
+            try {
+                // Convert Base64 string to Blob
+                const byteCharacters = atob(base64Input);
+                const byteNumbers = new Array(byteCharacters.length);
+                
+                for (let i = 0; i < byteCharacters.length; i++) {
+                    byteNumbers[i] = byteCharacters.charCodeAt(i);
+                }
+                
+                const byteArray = new Uint8Array(byteNumbers);
+                const blob = new Blob([byteArray], { type: 'application/pdf' });
 
-  if (!base64Input) {
-    alert('Please enter a Base64 string.');
-    return;
-  }
+                // Create an iframe to display the PDF
+                const iframe = document.createElement('iframe');
+                iframe.width = '100%';
+                iframe.height = '600px';
+                
+                // Load the PDF into the iframe
+                iframe.src = URL.createObjectURL(blob);
+                
+                // Append the iframe to the body
+                document.body.appendChild(iframe);
 
-  // Show the modal overlay
-  const modalOverlay = document.getElementById('modalOverlay');
-  const progressBar = document.getElementById('progressBar');
-  const progressText = document.getElementById('progressText');
-  modalOverlay.style.display = 'flex'; // Show the modal
-  progressBar.style.width = '0%';
-  progressText.textContent = 'Converting... 0%';
+                // Focus on the iframe (needed for some browsers)
+                setTimeout(() => {
+                    iframe.focus();
+                    iframe.contentDocument.print();
+                }, 1000);
 
-  // Simulate progress
-  let progress = 0;
-  const interval = setInterval(() => {
-    progress += 10;
-    progressBar.style.width = `${progress}%`;
-    progressText.textContent = `Converting... ${progress}%`;
+            } catch (error) {
+                alert('Error converting Base64 string to PDF: ' + error.message);
+                console.error(error);
+            }
+        }
 
-    if (progress >= 100) {
-      clearInterval(interval);
-      convertBase64ToPDF(base64Input);
-    }
-  }, 300);
-});
+        async function handlePrintPDF() {
+            try {
+                // Show loading modal
+                const modalOverlay = document.getElementById('modalOverlay');
+                if (modalOverlay) {
+                    modalOverlay.style.display = 'flex';
+                }
 
-function convertBase64ToPDF(base64Input) {
-  try {
-    // Convert Base64 to a Blob
-    const byteCharacters = atob(base64Input);
-    const byteNumbers = new Array(byteCharacters.length);
-    for (let i = 0; i < byteCharacters.length; i++) {
-      byteNumbers[i] = byteCharacters.charCodeAt(i);
-    }
-    const byteArray = new Uint8Array(byteNumbers);
-    const blob = new Blob([byteArray], { type: 'application/pdf' });
+                // Get Base64 input value
+                const base64Input = document.getElementById('base64Input').value;
+                
+                // Convert and display PDF
+                await convertBase64ToPDF(base64Input);
 
-    // Create a download link
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'converted-file.pdf';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+                // Hide loading modal after successful conversion
+                if (modalOverlay) {
+                    setTimeout(() => {
+                        modalOverlay.style.display = 'none';
+                    }, 1000);
+                }
 
-    // Hide the modal overlay after a delay
-    setTimeout(() => {
-      const modalOverlay = document.getElementById('modalOverlay');
-      modalOverlay.style.display = 'none';
-    }, 1000); // 1 second delay
-  } catch (error) {
-    alert('Invalid Base64 string or error during conversion.');
-    console.error(error);
-  }
-}
+            } catch (error) {
+                alert('Error processing PDF: ' + error.message);
+                console.error(error);
+            }
+        }
+    </script>
+</body>
+</html>
