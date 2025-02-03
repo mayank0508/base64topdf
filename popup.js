@@ -1,74 +1,57 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Base64 to PDF Print</title>
-</head>
-<body>
-    <!-- Your HTML content -->
-    
-    <script>
-        function convertBase64ToPDF(base64Input) {
-            try {
-                // Convert Base64 string to Blob
-                const byteCharacters = atob(base64Input);
-                const byteNumbers = new Array(byteCharacters.length);
-                
-                for (let i = 0; i < byteCharacters.length; i++) {
-                    byteNumbers[i] = byteCharacters.charCodeAt(i);
-                }
-                
-                const byteArray = new Uint8Array(byteNumbers);
-                const blob = new Blob([byteArray], { type: 'application/pdf' });
+document.getElementById('convertBtn').addEventListener('click', function () {
+  const base64Input = document.getElementById('base64Input');
+  const base64String = base64Input.value;
 
-                // Create an iframe to display the PDF
-                const iframe = document.createElement('iframe');
-                iframe.width = '100%';
-                iframe.height = '600px';
-                
-                // Load the PDF into the iframe
-                iframe.src = URL.createObjectURL(blob);
-                
-                // Append the iframe to the body
-                document.body.appendChild(iframe);
+  if (!base64String) {
+    alert('Please enter a Base64 string.');
+    return;
+  }
 
-                // Focus on the iframe (needed for some browsers)
-                setTimeout(() => {
-                    iframe.focus();
-                    iframe.contentDocument.print();
-                }, 1000);
+  // Show loading modal
+  const modalOverlay = document.getElementById('modalOverlay');
+  modalOverlay.style.display = 'flex';
 
-            } catch (error) {
-                alert('Error converting Base64 string to PDF: ' + error.message);
-                console.error(error);
-            }
-        }
+  // Convert Base64 to Blob
+  const decodedArrayBuffer = atob(base64String);
+  const arr = new Uint8Array(decodedArrayBuffer.length);
+  for (let i = 0; i < decodedArrayBuffer.length; i++) {
+    arr[i] = decodedArrayBuffer.charCodeAt(i);
+  }
+  const blob = new Blob([arr], { type: 'application/pdf' });
 
-        async function handlePrintPDF() {
-            try {
-                // Show loading modal
-                const modalOverlay = document.getElementById('modalOverlay');
-                if (modalOverlay) {
-                    modalOverlay.style.display = 'flex';
-                }
+  // Create a URL for the Blob
+  const url = URL.createObjectURL(blob);
 
-                // Get Base64 input value
-                const base64Input = document.getElementById('base64Input').value;
-                
-                // Convert and display PDF
-                await convertBase64ToPDF(base64Input);
+  // Create an Iframe to display the PDF
+  const iframe = document.createElement('iframe');
+  iframe.width = '100%';
+  iframe.height = '800px'; // Set a reasonable height
+  iframe.src = url;
 
-                // Hide loading modal after successful conversion
-                if (modalOverlay) {
-                    setTimeout(() => {
-                        modalOverlay.style.display = 'none';
-                    }, 1000);
-                }
+  // Append the iframe to the body or a specific container
+  document.body.appendChild(iframe);
 
-            } catch (error) {
-                alert('Error processing PDF: ' + error.message);
-                console.error(error);
-            }
-        }
-    </script>
-</body>
-</html>
+  // Handle user interaction for printing
+  setTimeout(() => {
+    // Focus on the iframe content before showing print dialog
+    iframe.contentDocument.focus();
+    iframe.contentWindow.print();
+  }, 1000); // Wait for the iframe to load the PDF
+
+  // Clean up URL reference
+  window.addEventListener('afterprint', function () {
+    document.body.removeChild(iframe);
+    URL.revokeObjectURL(url);
+    modalOverlay.style.display = 'none';
+  });
+
+  // Handle any errors during the process
+  iframe.onerror = function () {
+    alert(
+      'Failed to load or display the PDF. Please check your input and try again.'
+    );
+    document.body.removeChild(iframe);
+    URL.revokeObjectURL(url);
+    modalOverlay.style.display = 'none';
+  };
+});
